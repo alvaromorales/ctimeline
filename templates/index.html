@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Collaborative Timelines</title>
+<!-- Bootstrap -->
+<link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet" media="screen">
+<script src="http://api.simile-widgets.org/timeline/2.3.1/timeline-api.js?bundle=true" type="text/javascript"></script>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="{{ STATIC_URL }}js/bootstrap.js"></script>
+</head>
+
+<body>
+<script type="text/javascript">
+    var createForm = $("#new_timeline_form");
+    var submit = $("#create_timeline");
+
+    submit.onclick = function(){
+        createForm.submit();
+    }
+</script>
+
+  <p><br /></p>
+
+    <div class="container">
+    <div class="hero-unit">
+      <h1>Timeline</h1>
+      <p>Collaboratively create and curate timelines.</p>
+      <p>
+      <a href="#createTimeline" role="button" class="btn btn-primary btn-large" data-toggle="modal">Create a new timeline</a>
+      </p>
+      </div>
+
+      <h3>Featured timelines</h3>
+
+      <table class="table table-striped">
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+        </tr>
+        {% for item in featured_timelines %}
+        <tr> 
+          <td><a href='timeline/{{item.id}}'>{{ item.title }}</a></td>
+          <td>{{ item.description }}</td>
+        </tr>
+      {% endfor %}
+      </table>
+
+      </div>    
+
+
+<!-- Create Timeline Modal -->
+<div id="createTimeline" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+    <h3 id="myModalLabel">Create a new timeline</h3>
+  </div>
+
+  <div class="modal-body">
+
+<form class="form-horizontal" id="newTimelineForm" method="post" action=""> {% csrf_token %}
+  <div class="control-group">
+    <label class="control-label" for="new_timeline_title">Title:</label>
+    <div class="controls">
+      <input id="id_title" type="text" name="title" maxlength="200" placeholder="max 100 characters">
+      <span class="help-block">Give your timeline a meaningful name.</span>
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="new_timeline_description">Description:</label>
+    <div class="controls">
+      <textarea id="id_description" type="text" name="description" rows="5" maxlength="500"></textarea>
+      <span class="help-block">What is your timeline about?</span>
+    </div>
+  </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <input id="create_timeline" class="btn btn-primary" type="submit"></button>
+  </div>
+</form>
+</div>
+
+      </body>
+
+    
+
+</html>
