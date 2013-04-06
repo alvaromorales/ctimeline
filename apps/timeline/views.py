@@ -23,21 +23,6 @@ months = {
     'December' : 12
 }
 
-def index(request):
-    if request.method == 'POST':
-        form = NewTimelineForm(request.POST)
-        if form.is_valid():
-            f = form.save()
-            return HttpResponseRedirect('/timeline/' + str(f.id) + '/')
-
-    all_timelines = Timeline.objects.all()[:5]
-
-    return render_to_response('index.html',
-                              {'featured_timelines': all_timelines},
-                              context_instance = RequestContext(request))
-
-
-
 def index(request,timeline_id):
 
     t = get_object_or_404(Timeline, pk=timeline_id)
