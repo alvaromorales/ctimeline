@@ -1,249 +1,208 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>{{ timeline.title }}</title>
-    <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet" media="screen">
-    <link href="{{ STATIC_URL }}css/timeline-detail.css" rel="stylesheet" media="screen">
+<head>
+  <title>{{ timeline.title }}</title>
+  <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet" media="screen">
+  <link href="{{ STATIC_URL }}css/timeline-detail.css" rel="stylesheet" media="screen">
 
-    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.qtip-1.0.0-rc3.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.js"></script>
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/custom-theme/jquery-ui-1.9.2.custom.css">
+  <link href="{{ STATIC_URL }}css/jquery.tagit.css" rel="stylesheet" type="text/css">
 
-    <script type="text/javascript">
+  <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
 
-    {% autoescape off %}
-    var timelineStart = "Jun 28 1993 00:00:00 GMT";
-    var eventData = {{ json_events }};
-    {% endautoescape %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.qtip-1.0.0-rc3.js"></script>
+  <script src="{{ STATIC_URL }}js/tag-it.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.js"></script>
 
-      Timeline_ajax_url="{{ STATIC_URL }}timeline_simile/src/ajax/api/simile-ajax-api.js";
-      Timeline_urlPrefix='{{ STATIC_URL }}timeline_simile/src/webapp/api/';
-      Timeline_parameters='bundle=false';
-      var timeline_id = {{ timeline.id }};
-      var existing_tags = {{ json_tags|safe }};
-    </script>
+  <script type="text/javascript">
 
-    <script src="{{ STATIC_URL }}timeline_simile/src/webapp/api/timeline-api.js?bundle=false" type="text/javascript"></script>
-    <script type="text/javascript">
-      SimileAjax.History.enabled = false;
-    </script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/popupBubble.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/timelineDetail.js"></script>
+  {% autoescape off %}
+  var timelineStart = "Jun 28 1993 00:00:00 GMT";
+  var eventData = {{ json_events }};
+  {% endautoescape %}
 
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  </head>
+  Timeline_ajax_url="{{ STATIC_URL }}timeline_simile/src/ajax/api/simile-ajax-api.js";
+  Timeline_urlPrefix='{{ STATIC_URL }}timeline_simile/src/webapp/api/';
+  Timeline_parameters='bundle=false';
+  var timeline_id = {{ timeline.id }};
+  </script>
 
-  <body>
-    <p><br /></p>
-    <div class="container">
-      <div class="hero-unit">
-        <h1>{{ timeline.title }}</h1>
-        <p>{{ timeline.description }}<p>
+  <script src="{{ STATIC_URL }}timeline_simile/src/webapp/api/timeline-api.js?bundle=false" type="text/javascript"></script>
+  <script type="text/javascript">
+  SimileAjax.History.enabled = false;
+  </script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/popupBubble.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/timelineDetail.js"></script>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+
+<body>
+  <p><br /></p>
+  <div class="container">
+    <div class="hero-unit">
+      <h1>{{ timeline.title }}</h1>
+      <p>{{ timeline.description }}<p>
       </div>
 
       <div id='filterBox' class='filter-box'>
         <span>&nbsp;&nbsp;&nbsp;Show events with more than </span>
         <input id='minVotes' class='input-mini' type='text' value='0'></span>
-<span> votes and matching </span>
-<a id='setTagsMatch'>all</a>
-<span> tags</span>
-<div class='to-right' style='float:right;'>
-  <button id='reset_filter' class='btn'>Reset</button>
-  &nbsp;&nbsp;
-  <button id='apply_filter' class='btn btn-primary' onclick='filterEvents(timeline_id)'>Apply</button>
-  &nbsp;&nbsp;
-</div>
-</div>
-
-<p><br /></p>
-
-<div id="timeline" class="default-timeline"></div>
-<noscript>
-  This page uses Javascript to show you a Timeline. Please enable Javascript in your browser to see the full page. Thank you.
-</noscript>
-
-<br />
-<div class="pull-right">
-  <!-- Button to trigger modal -->
-  <a href="#newEvent" role="button" class="btn btn-primary" data-toggle="modal" onclick="tags_editing_mode=false; event_editing_mode = false;">New event</a>
-</div>
-
-<!-- Modal for New Event-->
-<div id="newEvent" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newEventLabel" aria-hidden="true" data-keyboard="false">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick='clearTags(); discardNewEvent();'>×</button>
-    <h3 id="newEventLabel">New event</h3>
-  </div>
-  {% csrf_token %}
-  <!--          <form id="newEventForm" class="form-horizontal" method="post" action=""> -->
-  <input type="hidden" id="id_eventType" name="eventType" value="instant"></input>
-  <input type="hidden" id="id_db_id" name="db_id" value=''></input>
-  <input type="hidden" id="id_startTimeEnabled" name="startTimeEnabled" value="False"></input>
-  <input type="hidden" id="id_endTimeEnabled" name="endTimeEnabled" value="False"></input>
-
-  <div class="modal-body form-horizontal">
-    <div class="control-group">
-      <label class="control-label" for="inputTitle">Title</label>
-      <div class="controls">
-        <input id="id_title" name="title" class="input-xlarge" type="text" placeholder="Give your event a meaningful name">
-      </div>
-    </div>
-
-    <div class="control-group">
-      <label class="control-label" for="inputDescription">Description</label>
-      <div class="controls">
-        <textarea id="id_description" name="description" class="input-xlarge" rows="5" placeholder="What happened?"></textarea>
-      </div>
-    </div>
-
-    <div class="control-group">
-      <label class="control-label" for="selectTypeOfEvent">Type</label>
-      <div class="controls">
-        <div class="btn-group" data-toggle-name="event_type" data-toggle="buttons-radio" >
-          <button id="instant" name="instant" type="button" onclick="toggleEventType('instant')" class="btn" data-toggle="button">Instant</button>
-          <button id="duration" name="duration" type="button" onclick="toggleEventType('duration')" class="btn" data-toggle="button">Duration</button>
+        <span> votes and matching </span>
+        <a id='setTagsMatch'>all</a>
+        <span> tags</span>
+        <div class='to-right' style='float:right;'>
+          <button id='reset_filter' class='btn'>Reset</button>
+          &nbsp;&nbsp;
+          <button id='apply_filter' class='btn btn-primary' onclick='filterEvents(timeline_id)'>Apply</button>
+          &nbsp;&nbsp;
         </div>
       </div>
-    </div>
 
-    <div class="control-group" id="eventStart">
-      <label class="control-label" for="inputStartDate">Start</label>
-      <div class="controls">
-        <div id="startMonthInput" class="form-inline">
-          <select id="id_startMonth" name="startMonth" class="input-medium">
-            <option>January</option>
-            <option>February</option>
-            <option>March</option>
-            <option>April</option>
-            <option>May</option>
-            <option>June</option>
-            <option>July</option>
-            <option>August</option>
-            <option>September</option>
-            <option>October</option>
-            <option>November</option>
-            <option>December</option>
-          </select>
-          <select id="id_startDay" name="startDay" class="input-mini">
+      <p><br /></p>
 
-          </select>
-          <input id="id_startYear" name="startYear" class="input-mini" type="text" placeholder="YYYY"></input>
-          <p></p>
-          <a href="#" id="addStartTime" onclick="$('#startTimeInput').show(); $('#removeStartTime').show(); toggleTimeEnabled('id_startTimeEnabled'); $(this).hide()">add start time</a>
-          <div id="startTimeInput">
-            <select id="id_startTimeHour" name="startTimeHour" class="input-mini"></select>
-            :
-            <select id="id_startTimeMin" name="startTimeMin" class="input-mini"></select>
-            <select id="id_startAmPm" name="startAmPm" class="input-mini">
-              <option>AM</option>
-              <option>PM</option>
-            </select>
-            <a href="#" id="removeStartTime" onclick="$('#startTimeInput').hide(); $('#addStartTime').show(); toggleTimeEnabled('id_startTimeEnabled'); $(this).hide()">remove</a>
-          </div>
-        </div>
-      </div>
-    </div>
+      <div id="timeline" class="default-timeline"></div>
+      <noscript>
+        This page uses Javascript to show you a Timeline. Please enable Javascript in your browser to see the full page. Thank you.
+      </noscript>
 
-    <div class="control-group" id="eventEnd">
-      <label class="control-label">End</label>
-      <div class="controls">
-        <div id="endMonthInput" class="form-inline">
-          <select id="id_endMonth" name="endMonth" class="input-medium">
-            <option>January</option>
-            <option>February</option>
-            <option>March</option>
-            <option>April</option>
-            <option>May</option>
-            <option>June</option>
-            <option>July</option>
-            <option>August</option>
-            <option>September</option>
-            <option>October</option>
-            <option>November</option>
-            <option>December</option>
-          </select>
-          <select id="id_endDay" name="endDay" class="input-mini">
-
-          </select>
-          <input id="id_endYear" name="endYear" class="input-mini" type="text" placeholder="YYYY"></input>
-          <p></p>
-          <a href="#" id="addEndTime" onclick="$('#endTimeInput').show(); $('#removeEndTime').show(); toggleTimeEnabled('id_endTimeEnabled'); $(this).hide()">add end time</a>
-          <div id="endTimeInput">
-            <select id="id_endTimeHour" name="endTimeHour" class="input-mini"></select>
-            :
-            <select id="id_endTimeMin" name="endTimeMin" class="input-mini"></select>
-            <select id="id_endAmPm" name="endAmPm" class="input-mini">
-              <option>AM</option>
-              <option>PM</option>
-            </select>
-            <a href="#" id="removeEndTime" onclick="$('#endTimeInput').hide(); $('#addEndTime').show(); toggleTimeEnabled('id_endTimeEnabled'); $(this).hide()">remove</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="control-group" id="tags">
-      <label class="control-label">Tags</label>
-      <div class="controls">
-        <div id="newEventSelectedTags" class="tag-box-small">
-
-        </div>
-        <a href="#newTag" role="button" onclick="switchEventTag()">add tags</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true" onclick="clearTags(); discardNewEvent();">Close</button>
-    <button class="btn btn-primary" onclick="addEventToTimeline(timeline_id); resetTagBox(); discardNewEvent();" data-dismiss="modal" aria-hidden="true">Create</input>
-  </div>
-</div>
-
-
-<!-- Modal for Add Tag-->
-<div id="newTag" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newTagLabel" aria-hidden="true" data-keyboard="false">
-  <div class="modal-header">
-    <button type="button" class="close" aria-hidden="true" onclick="closeTagsNoChange()">×</button>
-    <h3 id="newTagLabel">Tag event</h3>
-  </div>
-
-  <div class="modal-body">
-
-    <div>
-      <label class="control-label">Choose from existing tags</label>
-      <div id="all_tags_box" class="tag-box">
-        {% for tag in all_tags %}
-        <button class="label label-info tag existing-tag" value="{{ tag }}">{{ tag }}</button>
-        {% endfor %}
-      </div>
       <br />
-    </div>
+      <div class="pull-right">
+        <!-- Button to trigger modal -->
+        <a href="#newEvent" role="button" class="btn btn-primary" data-toggle="modal" onclick="tags_editing_mode=false; event_editing_mode = false;">New event</a>
+      </div>
 
-    <div class="form-inline to-right">
-      <label class="control-label">... or add a new tag</label>
-      <input id="new_tag" name="new_tag" class="input-large" type="text">
-      <button id="add_new_tag" type="button" class="btn btn-primary" onclick="selectTag()">Add</button>
-    </div>
-
-    <p>
-    <p>
-
-      <div>
-        <label class="control-label">Selected tags</label>
-        <div id="selected_tags_box" class="tag-box">
-
+      <!-- Modal for New Event-->
+      <div id="newEvent" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newEventLabel" aria-hidden="true" data-keyboard="false">
+        <div class="modal-header">
+          <button type="button" class="close discardEventModal" data-dismiss="modal" aria-hidden="true">×</button>
+          <h3 id="newEventLabel">New event</h3>
         </div>
-        <br />
-      </div>
+        {% csrf_token %}
+        <!--          <form id="newEventForm" class="form-horizontal" method="post" action=""> -->
+        <input type="hidden" id="id_eventType" name="eventType" value="instant"></input>
+        <input type="hidden" id="id_db_id" name="db_id" value=''></input>
+        <input type="hidden" id="id_startTimeEnabled" name="startTimeEnabled" value="False"></input>
+        <input type="hidden" id="id_endTimeEnabled" name="endTimeEnabled" value="False"></input>
 
-      <div class="to-right">
-        <button class="btn btn-primary" aria-hidden="true" onclick="doneTagging()">Done</button>
-      </div>
-  </div>
-</div>
+        <div class="modal-body form-horizontal">
+          <div class="control-group">
+            <label class="control-label" for="inputTitle">Title</label>
+            <div class="controls">
+              <input id="id_title" name="title" class="input-xlarge" type="text" placeholder="Give your event a meaningful name">
+            </div>
+          </div>
 
-<p><br /><br /></p>
+          <div class="control-group">
+            <label class="control-label" for="inputDescription">Description</label>
+            <div class="controls">
+              <textarea id="id_description" name="description" class="input-xlarge" rows="5" placeholder="What happened?"></textarea>
+            </div>
+          </div>
 
-</body>
+          <div class="control-group">
+            <label class="control-label" for="selectTypeOfEvent">Type</label>
+            <div class="controls">
+              <div class="btn-group" data-toggle-name="event_type" data-toggle="buttons-radio" >
+                <button id="instant" name="instant" type="button" class="btn" data-toggle="button">Instant</button>
+                <button id="duration" name="duration" type="button" class="btn" data-toggle="button">Duration</button>
+              </div>
+            </div>
+          </div>
 
-</html>
+          <div class="control-group" id="eventStart">
+            <label class="control-label" for="inputStartDate">Start</label>
+            <div class="controls">
+              <div id="startMonthInput" class="form-inline">
+                <select id="id_startMonth" name="startMonth" class="input-medium">
+                  <option>January</option>
+                  <option>February</option>
+                  <option>March</option>
+                  <option>April</option>
+                  <option>May</option>
+                  <option>June</option>
+                  <option>July</option>
+                  <option>August</option>
+                  <option>September</option>
+                  <option>October</option>
+                  <option>November</option>
+                  <option>December</option>
+                </select>
+                <select id="id_startDay" name="startDay" class="input-mini">
+
+                </select>
+                <input id="id_startYear" name="startYear" class="input-mini" type="text" placeholder="YYYY"></input>
+                <p></p>
+                <a href="#" id="addStartTime">add start time</a>
+                <div id="startTimeInput">
+                  <select id="id_startTimeHour" name="startTimeHour" class="input-mini"></select>
+                  :
+                  <select id="id_startTimeMin" name="startTimeMin" class="input-mini"></select>
+                  <select id="id_startAmPm" name="startAmPm" class="input-mini">
+                    <option>AM</option>
+                    <option>PM</option>
+                  </select>
+                  <a href="#" id="removeStartTime">remove</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-group" id="eventEnd">
+            <label class="control-label">End</label>
+            <div class="controls">
+              <div id="endMonthInput" class="form-inline">
+                <select id="id_endMonth" name="endMonth" class="input-medium">
+                  <option>January</option>
+                  <option>February</option>
+                  <option>March</option>
+                  <option>April</option>
+                  <option>May</option>
+                  <option>June</option>
+                  <option>July</option>
+                  <option>August</option>
+                  <option>September</option>
+                  <option>October</option>
+                  <option>November</option>
+                  <option>December</option>
+                </select>
+                <select id="id_endDay" name="endDay" class="input-mini">
+
+                </select>
+                <input id="id_endYear" name="endYear" class="input-mini" type="text" placeholder="YYYY"></input>
+                <p></p>
+                <a href="#" id="addEndTime">add end time</a>
+                <div id="endTimeInput">
+                  <select id="id_endTimeHour" name="endTimeHour" class="input-mini"></select>
+                  :
+                  <select id="id_endTimeMin" name="endTimeMin" class="input-mini"></select>
+                  <select id="id_endAmPm" name="endAmPm" class="input-mini">
+                    <option>AM</option>
+                    <option>PM</option>
+                  </select>
+                  <a href="#" id="removeEndTime">remove</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-group" id="tags">
+            <label class="control-label">Tags</label>
+            <div class="controls">
+              <input id="tag_box" name="tags" class="input-xlarge" type="text">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn discardEventModal" data-dismiss="modal" aria-hidden="true">Close</button>
+          <button id="create_event" class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Create</input>
+          </div>
+        </div>
+
+        <p><br /><br /></p>
+
+      </body>
+
+      </html>

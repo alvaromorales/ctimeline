@@ -101,6 +101,7 @@ INSTALLED_APPS = (
     'apps.timeline',
     'apps.homepage',
     'south',
+    'taggit',
 )
 
 # A sample logging configuration. The only tangible logging

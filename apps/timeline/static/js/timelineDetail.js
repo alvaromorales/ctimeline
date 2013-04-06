@@ -1,13 +1,41 @@
-var tags = {};
-var tags_current = {};
-
-var filter_tags = {};
-var selected_tags = 0;
-
-var tags_editing_mode = false;
 var event_editing_mode = false;
-
 var current_event_id;
+
+////////// AJAX SETUP //////////////
+
+var getCookie = function(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+var csrftoken = getCookie('csrftoken');
+
+var csrfSafeMethod = function(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+$.ajaxSetup({
+    crossDomain: false, // obviates need for sameOrigin test
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+////////// DOCUMENT READY //////////
 
 $(document).ready(function() {
 
@@ -55,134 +83,64 @@ $(document).ready(function() {
 
 	$('#instant').click();
 
-	$(".existing-tag").click(function () {
-		var tag_chosen = $(this).text();
-		$(this).attr("disabled", "disabled");
-		$(this).attr('class','label tag existing-tag tmp-existing-tag')
-		$('#selected_tags_box').append("<button class=\"label label-info tag tmp-tag\" value=\"" + tag_chosen + "\" onclick=\"removeTag()\">" + tag_chosen + "</button>");
-		tags_current[tag_chosen] = true;
+	// New event modal
+	$('.discardEventModal').click(function(e) {
+		$("#tag_box").tagit("removeAll");
+		discardNewEvent();
 	});
 
-	var all_tags_html = "<button class='small-close close' onclick='closeTagBox()'>x</button>";
-	if (existing_tags.length == 0) {
-		all_tags_html += 'No tags';
-	} else {
-		for (var tag in existing_tags) {
-			all_tags_html = all_tags_html + "<input type='checkbox' class='tag-checkbox' value='" + tag + "'>&nbsp;&nbsp;" + tag + "</input><br />";
-		}
-	}
+	$('#instant').click(function(e) {
+		toggleEventType('instant');
+	});
 
-	$('#setTagsMatch').qtip({
-		content: all_tags_html,
-		show: 'click',
-//		hide: 'click',
-		hide: { when:false },	//never hide, click 'x'
-		style: {
-			margin: 8,
-			padding: 8,
-			tip: 'topLeft',
-			name: 'light',
-			border: {
-				radius: 6,
-				width: 1
-			}
-		},
-		position: {
-			corner: {
-				target: 'bottomRight',
-				tooltip: 'topLeft'
-			}
-		}
+	$('#duration').click(function(e) {
+		toggleEventType('duration');
+	});
+
+	$('#addStartTime').click(function(e) {
+		$('#startTimeInput').show(); 
+		$('#removeStartTime').show(); 
+		toggleTimeEnabled('id_startTimeEnabled'); 
+		$(this).hide();
+	});
+
+	$('#removeStartTime').click(function(e) {
+		$('#startTimeInput').hide(); 
+		$('#addStartTime').show(); 
+		toggleTimeEnabled('id_startTimeEnabled'); 
+		$(this).hide();
+	});
+
+	$('#addEndTime').click(function(e){
+		$('#endTimeInput').show(); 
+		$('#removeEndTime').show(); 
+		toggleTimeEnabled('id_endTimeEnabled'); 
+		$(this).hide();
+	});
+
+	$('#removeEndTime').click(function(e) {
+		$('#endTimeInput').hide(); 
+		$('#addEndTime').show(); 
+		toggleTimeEnabled('id_endTimeEnabled'); 
+		$(this).hide();
+	});
+
+	$('#create_event').click(function (e) {
+		addEventToTimeline(timeline_id); 
+		discardNewEvent();
+	});
+
+	$('#tag_box').tagit({
+		allowSpaces: true,
 	});
 
  });
 
-function closeTagBox() {
-	$("#setTagsMatch").qtip("hide");
-	if (selected_tags > 0) {
-		$("#setTagsMatch").text(selected_tags);
-	} else {
-		$("#setTagsMatch").text('all');
-	}
-
-}
-
-jQuery(document.body).on('click','.tag-checkbox', function(event) {
-	var isChecked = $(this).is(':checked');
-	var tag = $(this).val();
-
-	if (isChecked) {
-		filter_tags[tag] = true;
-		selected_tags += 1;
-	} else {
-		if (tag in filter_tags) {
-			delete filter_tags[tag];
-			selected_tags -= 1;
-		}
-	}
-
-});
-
-// Removes a tag from the selected tags div
-jQuery(document.body).on('click', '.tmp-tag', function(event) {
-	var tag_to_delete = $(this);
-	var tag = tag_to_delete.text();
-
-	if (tag in existing_tags) {
-		var tag_elt = $('.tmp-existing-tag').filter(function (index){
-		    return this.value == tag;
-		});
-
-		tag_elt.removeAttr('disabled');
-		tag_elt.attr('class','label label-info tag existing-tag');
-	}
-
-	tag_to_delete.remove();
-
-	if (tags_editing_mode) {
-		tags_current[tag] = false;
-	} else {
-		delete tags_current[tag];
-	}
-
-});
-
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-var csrftoken = getCookie('csrftoken');
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
-$.ajaxSetup({
-    crossDomain: false, // obviates need for sameOrigin test
-    beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type)) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
+////////// EVENTS //////////
 
 // edit an event
 function loadEventForEdit(event) {
 	event_editing_mode = true;
-	tags_editing_mode = true;
 
 	var db_id = event._db_id;
 	$('#id_db_id').attr('value',db_id);
@@ -249,7 +207,7 @@ function loadEventForEdit(event) {
 	$('#newEvent').modal('show');
 }
 
-function extractTimeInfo(datetime_str) {
+var extractTimeInfo = function(datetime_str) {
 	var date = datetime_str.split("T")[0];
 	var time = datetime_str.split("T")[1];
 
@@ -314,7 +272,7 @@ function extractTimeInfo(datetime_str) {
 }
 
 // Resets new event form
-function discardNewEvent(){
+var discardNewEvent = function(){
 	if ($("#id_eventType").val() == "duration") {
 		$('#instant').button('toggle');
 	}
@@ -344,151 +302,11 @@ function discardNewEvent(){
 	$('#startTimeInput').hide();
 	$('#eventEnd').hide();
 
-	$('#newEventSelectedTags').empty();
-	this.tags = {};
-	this.tags_current = {};
+	$("#tag_box").val('');
+
 }
 
-/*
-/ Tags
-*/
-
-function removeTag() {
-	//do something
-}
-
-function selectTag() {
-	var text = $("#new_tag").val();
-	$("#new_tag").val('');
-	if (!(text in tags_current)) {
-		tags_current[text] = true;
-		$("#selected_tags_box").append("<button class=\"label label-info tag tmp-tag\" value=\"" + text + "\" onclick=\"removeTag()\">" + text + "</button>");
-	}
-}
-
-function resetTagBox() {
-	tags = {};
-	tags_current = {};
-
-	// reset tag box html
-	$('#selected_tags_box').html('');
-	var tag_elt = $('.tmp-existing-tag');
-	tag_elt.removeAttr('disabled');
-	tag_elt.attr('class','label label-info tag existing-tag');	
-}
-
-function closeTagsNoChange() {
-	if (tags_editing_mode) {
-		resetTagBox();
-		switchEventTag();
-	} else {
-		tags_current = jQuery.extend(true, {},tags);
-		chooseTags();
-		discardSelectedTags();
-	}
-}
-
-function switchEventTag(){
-	if (!tags_editing_mode){
-		$("#newEvent").modal('toggle');
-	}
-	$("#newTag").modal('toggle');
-}
-
-function doneTagging() {
-	if (tags_editing_mode) {
-		submitTags(this.current_event_id);
-	} else {
-		chooseTags();
-	}
-}
-
-function chooseTags() {
-	$("#newEventSelectedTags").html('');
-	tags_html = '';
-
-	for (var tag in tags_current) {
-		tags_html += "<label class=\"label label-info tag\">" + tag + "</label>";
-	}
-
-	$("#newEventSelectedTags").html(tags_html);
-	tags = jQuery.extend(true, {},tags_current);
-
-	switchEventTag();
-}
-
-//tags_current holds selected tags. Discard these, and only look at tags
-function discardSelectedTags() {
-	$("#selected_tags_box").html('');
-	for (var tag in tags){
-		$("#selected_tags_box").append("<button class=\"label label-info tag\" value=\"" + tag + "\" onclick=\"removeTag()\">" + tag + "</button>");
-	}
-
-	$('.tmp-existing-tag').removeAttr('disabled');
-	$('.tmp-existing-tag').attr('class','label label-info tag existing-tag');
-}
-
-function clearTags(){
-	this.tags = {};
-	this.tags_current = {};
-	$("#selected_tags_box").html('');
-}
-
-function loadTagsForEdit(event_tags,current_event_id) {
-	this.tags_editing_mode = true;
-	this.current_event_id = current_event_id;
-
-	var tmp_tags = {};
-
-	for (var i=0;i<event_tags.length;i++) {
-		text = event_tags[i];
-
-		tmp_tags[text] = true;
-
-		$("#selected_tags_box").append("<button class=\"label label-info tag tmp-tag\" value=\"" + text + "\" onclick=\"removeTag()\">" + text + "</button>");
-
-		if (text in existing_tags) {
-			var tag_elt = $('.existing-tag').filter(function (index){
-			    return this.value == text;
-			});
-
-			tag_elt.attr('disabled','disabled');
-			tag_elt.attr('class','label tag existing-tag tmp-existing-tag');
-		}
-	}
-
-	this.tags = jQuery.extend(true, {},tmp_tags);
-	this.tags_current = jQuery.extend(true, {},tmp_tags);
-
-	$("#newTag").modal('show');
-}
-
-function submitTags(event_id) {
-
-    var data = {id: event_id, tag_list: JSON.stringify(this.tags_current)};
-    var tagUrl = "/tag/";
-
-    $.ajax({ 
-        type:"POST",
-        url: tagUrl, 
-        dataType: 'json', 
-        data: data, 
-        success: tagsSubmitted
-    });
-
-    return false;
-}
-
-function tagsSubmitted(response, status) {
-    if (status == "success") {
-        reloadTimeline(response);
-        resetTagBox();
-        $("#newTag").modal('hide');
-    }
-}
-
-function addEventToTimeline(timeline_id) {
-
+var addEventToTimeline = function(timeline_id) {
 	var data = {
 		id: timeline_id,
 		edit: event_editing_mode,
@@ -509,13 +327,11 @@ function addEventToTimeline(timeline_id) {
 		endTimeHour: $("#id_endTimeHour").val(),
 		endAmPm: $("#id_endAmPm").val(),
 		endTimeMin: $("#id_endTimeMin").val(),
-		tags: JSON.stringify(tags)
+		tags: $('#tag_box').val(),
 	};
 
 	if (event_editing_mode) {
-
 		data['db_id'] = $('#id_db_id').val();
-		data['tag_list'] = JSON.stringify(this.tags_current);
 
 		var editEvent = "/timeline/editevent/";
 

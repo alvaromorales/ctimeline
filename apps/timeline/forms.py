@@ -8,4 +8,4 @@ class NewTimelineForm(ModelForm):
 class NewEventForm(ModelForm):
     class Meta:
         model = Event
-        exclude = ('timeline','tags')
+        exclude = ('timeline')

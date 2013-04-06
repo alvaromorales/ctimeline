@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from forms import NewTimelineForm, NewEventForm
-from models import Timeline,Event,Tag
+from models import Timeline,Event
 from datetime import date, time
 from time import strptime
 from output_events import create_json
@@ -87,22 +87,10 @@ def index(request,timeline_id):
     all_events = t.events.all()
     json_events = create_json(all_events)
 
-    all_tags = Tag.objects.filter(timeline=t)
-
-    json_tags = {}
-
-    for x in all_tags:
-        txt = x.tag
-        json_tags[txt] = True
-
-    json_tags = simplejson.dumps(json_tags)
-
     return render_to_response('timeline/index.html',
                               {'timeline' : t,
                                'all_events' : all_events,
                                'json_events' : json_events,
-                               'all_tags' : all_tags,
-                               'json_tags': json_tags,
                                },
                               context_instance = RequestContext(request))
 
@@ -120,39 +108,18 @@ def upvote(request):
         return HttpResponse(data, mimetype='application/json')
     return HttpResponse("error")
 
-def tag(request):
-    if request.method == 'POST':
-        event_id = request.POST[u'id']
-        modified_tags = simplejson.loads(request.POST[u'tag_list'])
-
-        e = get_object_or_404(Event,pk=event_id)
-        t = e.timeline
-
-        for tag in modified_tags:
-            status = modified_tags[tag]
-            if status == True:
-                newtag, created = Tag.objects.get_or_create(tag=tag,timeline=t)
-                e.tags.add(newtag)
-            elif status == False:
-                tag_to_remove = Tag.objects.get(tag=tag,timeline=t)
-                e.tags.remove(tag_to_remove)
-
-        all_events = t.events.all()
-        data = create_json(all_events)
-
-        return HttpResponse(data,mimetype='application/json')
-    return HttpResponse('error')
-
 def addEvent(request):
     if request.method == 'POST':
         timeline_id = request.POST[u'id']
         t = get_object_or_404(Timeline, pk=timeline_id)
         
-        newEvent = request.POST.copy()
+        # Take data from request and change it to Simile Timeline event format
 
+        newEvent = request.POST.copy()
         newEvent['title'] = request.POST[u'title']
         newEvent['description'] = request.POST[u'description']
-        
+        newEvent['tags'] = request.POST[u'tags'].split(',')
+
         # Generate startdate Date object
         startDay = int(request.POST[u'startDay'])
         startMonth = months[request.POST[u'startMonth']]
@@ -195,6 +162,7 @@ def addEvent(request):
             e.description = newEvent['description']
             e.startDate = newEvent['startDate']
             e.durationEvent = newEvent['durationEvent']
+            e.tags.set(newEvent['tags'])
 
             if 'startTime' in newEvent:
                 e.startTime = newEvent['startTime']
@@ -211,22 +179,10 @@ def addEvent(request):
                 e.endDate = None
                 e.endTime = None
             
-            modified_tags = simplejson.loads(request.POST[u'tag_list'])
-
-            for tag in modified_tags:
-                status = modified_tags[tag]
-                if status == True:
-                    newtag, created = Tag.objects.get_or_create(tag=tag,timeline=t)
-                    e.tags.add(newtag)
-                elif status == False:
-                    tag_to_remove = Tag.objects.get(tag=tag,timeline=t)
-                    e.tags.remove(tag_to_remove)
             e.save()
 
         else:
             newEvent['votes'] = 0
-
-            tags = simplejson.loads(request.POST[u'tags'])
 
             form = NewEventForm(newEvent)
             if form.is_valid():
@@ -236,10 +192,6 @@ def addEvent(request):
 
                 e = get_object_or_404(Event, pk=f.id)
 
-                for tag in tags:
-                    newtag, created = Tag.objects.get_or_create(tag=tag,timeline=t)
-                    e.tags.add(newtag)
-                    
         all_events = t.events.all()
         data = create_json(all_events)
 
@@ -250,24 +202,12 @@ def filter(request):
         t = get_object_or_404(Timeline, pk=request.POST[u'id'])
         
         votes_filter = int(request.POST[u'votes'])
-        tags_filter = simplejson.loads(request.POST[u'tag_list'])
 
-        if votes_filter == 0 and tags_filter == {}:
+        if votes_filter == 0:
             all_events = t.events.all()
             data = create_json(all_events)
         else:
-            tags_id_list = []
-
-            for text in tags_filter:
-                tag_obj = Tag.objects.get(timeline=t,tag=text)
-                tags_id_list.append(tag_obj.id)
-
-            if tags_id_list:
-                matches = Event.objects.filter(votes__gte=votes_filter)
-                matches = matches.filter(tags__in=tags_id_list)
-            else:
-                matches = Event.objects.filter(votes__gte=votes_filter)
-
+            matches = Event.objects.filter(votes__gte=votes_filter)
             data = create_json(matches)
 
         return HttpResponse(data, mimetype='application/json')

@@ -11,21 +11,16 @@ def create_json(events):
         }
 
     for e in events:
-
-        tags = e.tags.all()
-        tags_list = [t.__unicode__() for t in tags]
-
-        #if tags_list == []:
-        #    tags_list = {}
-
         event_attrs = {
             'db_id' : e.id,
             'title' : e.title,
             'description' : e.description,
             'durationEvent' : e.durationEvent,
             'votes' : e.votes,
-            'tags' : tags_list
             }
+
+        if e.tags.all():
+            event_attrs['tags'] = e.tags.all()
 
         if e.startTime:
             full_d = datetime.combine(e.startDate,e.startTime)
