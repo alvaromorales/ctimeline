@@ -7,10 +7,13 @@
 
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.qtip-1.0.0-rc3.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.js"></script>
+
     <script type="text/javascript">
 
     {% autoescape off %}
-    var event_data = {{ json_events }};
+    var timelineStart = "Jun 28 1993 00:00:00 GMT";
+    var eventData = {{ json_events }};
     {% endautoescape %}
 
       Timeline_ajax_url="{{ STATIC_URL }}timeline_simile/src/ajax/api/simile-ajax-api.js";
@@ -24,10 +27,8 @@
     <script type="text/javascript">
       SimileAjax.History.enabled = false;
     </script>
-
-    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/timelineDetail.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/popupBubble.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/timelineDetail.js"></script>
 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   </head>
@@ -56,7 +57,7 @@
 
 <p><br /></p>
 
-<div id="my-timeline" class="default-timeline"></div>
+<div id="timeline" class="default-timeline"></div>
 <noscript>
   This page uses Javascript to show you a Timeline. Please enable Javascript in your browser to see the full page. Thank you.
 </noscript>

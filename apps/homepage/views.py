@@ -2,6 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from apps.timeline.models import *
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from apps.timeline.forms import NewTimelineForm
 
 def index(request):
     # create a new timeline

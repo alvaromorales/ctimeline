@@ -24,7 +24,6 @@ months = {
 }
 
 def index(request,timeline_id):
-
     t = get_object_or_404(Timeline, pk=timeline_id)
 
     """
@@ -98,7 +97,7 @@ def index(request,timeline_id):
 
     json_tags = simplejson.dumps(json_tags)
 
-    return render_to_response('index.html',
+    return render_to_response('timeline/index.html',
                               {'timeline' : t,
                                'all_events' : all_events,
                                'json_events' : json_events,
