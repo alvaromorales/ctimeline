@@ -517,7 +517,7 @@ function addEventToTimeline(timeline_id) {
 		data['db_id'] = $('#id_db_id').val();
 		data['tag_list'] = JSON.stringify(this.tags_current);
 
-		var editEvent = "/editevent/";
+		var editEvent = "/timeline/editevent/";
 
 		$.ajax({ 
 			type:"POST", 
@@ -528,7 +528,7 @@ function addEventToTimeline(timeline_id) {
 		});
 
 	} else {
-		var createUrl = "/addevent/";
+		var createUrl = "/timeline/addevent/";
 
 		$.ajax({ 
 			type:"POST", 
@@ -563,7 +563,7 @@ function resetFilters() {
 function filterEvents(timeline_id) {
 
     var data = {id: timeline_id, votes: $('#minVotes').val(),tag_list: JSON.stringify(filter_tags)};
-    var filterUrl = "/filter/";
+    var filterUrl = "/timeline/filter/";
 
     $.ajax({ 
         type:"POST",
