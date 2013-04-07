@@ -7,6 +7,7 @@ from datetime import date, time
 from time import strptime
 from output_events import create_json
 from django.utils import simplejson
+from taggit.models import Tag
 
 months = {
     'January' : 1,
@@ -83,14 +84,16 @@ def index(request,timeline_id):
             f.timeline = t
             f.save()
             return HttpResponseRedirect('/timeline/' + str(t.id) + '/')
-    
+        
     all_events = t.events.all()
     json_events = create_json(all_events)
-
+    all_tags = sorted([tag.name for tag in Tag.objects.filter(event__timeline=t)])
+    
     return render_to_response('timeline/index.html',
                               {'timeline' : t,
                                'all_events' : all_events,
                                'json_events' : json_events,
+                               'all_tags' : all_tags,
                                },
                               context_instance = RequestContext(request))
 
@@ -118,7 +121,7 @@ def addEvent(request):
         newEvent = request.POST.copy()
         newEvent['title'] = request.POST[u'title']
         newEvent['description'] = request.POST[u'description']
-        newEvent['tags'] = request.POST[u'tags'].split(',')
+        newEvent['tags'] = request.POST[u'tags']
 
         # Generate startdate Date object
         startDay = int(request.POST[u'startDay'])
@@ -186,11 +189,12 @@ def addEvent(request):
 
             form = NewEventForm(newEvent)
             if form.is_valid():
-                f = form.save(commit=False)
-                f.timeline = t
-                f.save()
-
-                e = get_object_or_404(Event, pk=f.id)
+                obj = form.save(commit=False)
+                obj.timeline = t
+                obj.save()
+                
+                e = get_object_or_404(Event, pk=obj.id)
+                form.save_m2m()
 
         all_events = t.events.all()
         data = create_json(all_events)

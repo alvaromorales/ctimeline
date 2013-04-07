@@ -20,7 +20,7 @@ def create_json(events):
             }
 
         if e.tags.all():
-            event_attrs['tags'] = e.tags.all()
+            event_attrs['tags'] = [t.name for t in e.tags.all()]
 
         if e.startTime:
             full_d = datetime.combine(e.startDate,e.startTime)

@@ -4,14 +4,14 @@
   <title>{{ timeline.title }}</title>
   <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet" media="screen">
   <link href="{{ STATIC_URL }}css/timeline-detail.css" rel="stylesheet" media="screen">
-
   <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/custom-theme/jquery-ui-1.9.2.custom.css">
   <link href="{{ STATIC_URL }}css/jquery.tagit.css" rel="stylesheet" type="text/css">
+  <link href="{{ STATIC_URL }}css/chosen.css" rel="stylesheet" type="text/css">
 
   <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
 
-  <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.qtip-1.0.0-rc3.js"></script>
+  <script src="{{ STATIC_URL }}js/chosen.jquery.js" type="text/javascript" charset="utf-8"></script>
   <script src="{{ STATIC_URL }}js/tag-it.js" type="text/javascript" charset="utf-8"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.js"></script>
 
@@ -46,19 +46,38 @@
       <p>{{ timeline.description }}<p>
       </div>
 
-      <div id='filterBox' class='filter-box'>
-        <span>&nbsp;&nbsp;&nbsp;Show events with more than </span>
-        <input id='minVotes' class='input-mini' type='text' value='0'></span>
-        <span> votes and matching </span>
-        <a id='setTagsMatch'>all</a>
-        <span> tags</span>
-        <div class='to-right' style='float:right;'>
-          <button id='reset_filter' class='btn'>Reset</button>
-          &nbsp;&nbsp;
-          <button id='apply_filter' class='btn btn-primary' onclick='filterEvents(timeline_id)'>Apply</button>
-          &nbsp;&nbsp;
+      <div id="filter-accordion" class="accordion">
+        <div class="accordion-group">
+          <div class="accordion-heading">
+            <a class="accordion-toggle" data-toggle="collapse" data-parent="#filter-accordion" href="#collapseOne">
+              <h4>Filter Options</h4>
+            </a>
+          </div>
+          <div id="collapseOne" class="accordion-body collapse">
+            <div class="accordion-inner">
+              <p>
+                <span>Show events with more than &nbsp;&nbsp;</span>
+                <input id='minVotes' class='input-small' type='text' value='0'></span>
+                <span> &nbsp;&nbsp;votes</span>
+              </p>
+              <div class='pull-right' style='float:right;'>
+                <button id='reset_filter' class='btn'>Reset</button>
+              </div>
+              <p>with tags &nbsp;&nbsp;
+                <select data-placeholder="Choose a Tag" class="chzn-select" multiple style="width:250px; height:200px;" tabindex="4">
+                  {% autoescape off %}
+                  {% for t in all_tags %}
+                      <option value="{{ t }}">{{ t }}</option>
+                  {% endfor %}
+                  {% endautoescape %}
+                </select>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
+
+
 
       <p><br /></p>
 
@@ -70,7 +89,7 @@
       <br />
       <div class="pull-right">
         <!-- Button to trigger modal -->
-        <a href="#newEvent" role="button" class="btn btn-primary" data-toggle="modal" onclick="tags_editing_mode=false; event_editing_mode = false;">New event</a>
+        <a href="#newEvent" role="button" class="btn btn-primary discardEventModal" data-toggle="modal">New event</a>
       </div>
 
       <!-- Modal for New Event-->

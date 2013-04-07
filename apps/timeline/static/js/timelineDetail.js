@@ -85,6 +85,7 @@ $(document).ready(function() {
 
 	// New event modal
 	$('.discardEventModal').click(function(e) {
+		event_editing_mode = false;
 		$("#tag_box").tagit("removeAll");
 		discardNewEvent();
 	});
@@ -133,6 +134,11 @@ $(document).ready(function() {
 	$('#tag_box').tagit({
 		allowSpaces: true,
 	});
+
+	$(".chzn-select").chosen();
+	$(".default").css("width","350px");
+	$(".chzn-choices").css("width","350px");
+	$(".chzn-results").css("width","350px");
 
  });
 

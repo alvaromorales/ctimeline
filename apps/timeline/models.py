@@ -1,5 +1,6 @@
 from django.db import models
 from taggit.managers import TaggableManager
+from taggit.models import TaggedItemBase
 
 class Timeline(models.Model):    
     title = models.CharField(max_length=200)
@@ -23,7 +24,7 @@ class Event(models.Model):
     # latestEnd = models.DateTimeField(blank=True)
     durationEvent = models.BooleanField()
     votes = models.PositiveIntegerField(default=0)
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
     # icon
     # image
     # tags

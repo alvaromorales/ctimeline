@@ -83,9 +83,59 @@ $(document).ready(function() {
 
 	$('#instant').click();
 
+	// New event modal
+	$('.discardEventModal').click(function(e) {
+		event_editing_mode = false;
+		$("#tag_box").tagit("removeAll");
+		discardNewEvent();
+	});
+
+	$('#instant').click(function(e) {
+		toggleEventType('instant');
+	});
+
+	$('#duration').click(function(e) {
+		toggleEventType('duration');
+	});
+
+	$('#addStartTime').click(function(e) {
+		$('#startTimeInput').show(); 
+		$('#removeStartTime').show(); 
+		toggleTimeEnabled('id_startTimeEnabled'); 
+		$(this).hide();
+	});
+
+	$('#removeStartTime').click(function(e) {
+		$('#startTimeInput').hide(); 
+		$('#addStartTime').show(); 
+		toggleTimeEnabled('id_startTimeEnabled'); 
+		$(this).hide();
+	});
+
+	$('#addEndTime').click(function(e){
+		$('#endTimeInput').show(); 
+		$('#removeEndTime').show(); 
+		toggleTimeEnabled('id_endTimeEnabled'); 
+		$(this).hide();
+	});
+
+	$('#removeEndTime').click(function(e) {
+		$('#endTimeInput').hide(); 
+		$('#addEndTime').show(); 
+		toggleTimeEnabled('id_endTimeEnabled'); 
+		$(this).hide();
+	});
+
+	$('#create_event').click(function (e) {
+		addEventToTimeline(timeline_id); 
+		discardNewEvent();
+	});
+
 	$('#tag_box').tagit({
 		allowSpaces: true,
 	});
+
+	$(".chzn-select").chosen();
 
  });
 
@@ -94,7 +144,6 @@ $(document).ready(function() {
 // edit an event
 function loadEventForEdit(event) {
 	event_editing_mode = true;
-	tags_editing_mode = true;
 
 	var db_id = event._db_id;
 	$('#id_db_id').attr('value',db_id);
@@ -256,9 +305,8 @@ var discardNewEvent = function(){
 	$('#startTimeInput').hide();
 	$('#eventEnd').hide();
 
-	$('#newEventSelectedTags').empty();
-	this.tags = {};
-	this.tags_current = {};
+	$("#tag_box").val('');
+
 }
 
 var addEventToTimeline = function(timeline_id) {
@@ -282,13 +330,11 @@ var addEventToTimeline = function(timeline_id) {
 		endTimeHour: $("#id_endTimeHour").val(),
 		endAmPm: $("#id_endAmPm").val(),
 		endTimeMin: $("#id_endTimeMin").val(),
-		tags: JSON.stringify(tags)
+		tags: $('#tag_box').val(),
 	};
 
 	if (event_editing_mode) {
-
 		data['db_id'] = $('#id_db_id').val();
-		data['tag_list'] = JSON.stringify(this.tags_current);
 
 		var editEvent = "/timeline/editevent/";
 
