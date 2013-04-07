@@ -206,12 +206,17 @@ def filter(request):
         t = get_object_or_404(Timeline, pk=request.POST[u'id'])
         
         votes_filter = int(request.POST[u'votes'])
+        tags_filter = simplejson.loads(request.POST[u'tag_list'])
 
-        if votes_filter == 0:
+        if votes_filter == 0 and tags_filter == []:
             all_events = t.events.all()
             data = create_json(all_events)
         else:
-            matches = Event.objects.filter(votes__gte=votes_filter)
+            if tags_filter:
+                matches = Event.objects.filter(votes__gte=votes_filter)
+                matches = matches.filter(tags__name__in=tags_filter)
+            else:
+                matches = Event.objects.filter(votes__gte=votes_filter)
             data = create_json(matches)
 
         return HttpResponse(data, mimetype='application/json')

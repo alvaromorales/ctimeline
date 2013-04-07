@@ -140,6 +140,43 @@ $(document).ready(function() {
 	$(".chzn-choices").css("width","350px");
 	$(".chzn-results").css("width","350px");
 
+	$('#apply_filter').click(function(e) {
+		var tags = [];
+		var chosen = $(".search-choice").children('span').each( function(index) {
+			tags.push($(this)[0].innerHTML);
+		});
+
+	    var data = {id: timeline_id, votes: $('#minVotes').val(),tag_list: JSON.stringify(tags)};
+	    var filterUrl = "/timeline/filter/";
+
+	    $.ajax({ 
+	        type:"POST",
+	        url: filterUrl,
+	        dataType: 'json',
+	        data: data,
+	        success: filterDone
+	    });
+
+	});
+
+	$('#reset_filter').click(function(e) {
+		$('#minVotes').val(0);
+		$('option').prop('selected', false);
+		$('select').trigger('liszt:updated');
+		
+		var data = {id: timeline_id, votes: 0,tag_list: JSON.stringify([])};
+		var filterUrl = "/timeline/filter/";
+
+		$.ajax({ 
+		    type:"POST",
+		    url: filterUrl,
+		    dataType: 'json',
+		    data: data,
+		    success: filterDone
+		});
+
+	});
+
  });
 
 ////////// EVENTS //////////
