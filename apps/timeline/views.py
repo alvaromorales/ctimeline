@@ -165,7 +165,8 @@ def addEvent(request):
             e.description = newEvent['description']
             e.startDate = newEvent['startDate']
             e.durationEvent = newEvent['durationEvent']
-            e.tags.set(newEvent['tags'])
+            
+            e.tags.set(*newEvent['tags'].split(','))
 
             if 'startTime' in newEvent:
                 e.startTime = newEvent['startTime']

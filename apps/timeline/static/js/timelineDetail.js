@@ -131,10 +131,6 @@ $(document).ready(function() {
 		discardNewEvent();
 	});
 
-	$('#tag_box').tagit({
-		allowSpaces: true,
-	});
-
 	$(".chzn-select").chosen();
 	$(".default").css("width","350px");
 	$(".chzn-choices").css("width","350px");
@@ -163,7 +159,7 @@ $(document).ready(function() {
 		$('#minVotes').val(0);
 		$('option').prop('selected', false);
 		$('select').trigger('liszt:updated');
-		
+
 		var data = {id: timeline_id, votes: 0,tag_list: JSON.stringify([])};
 		var filterUrl = "/timeline/filter/";
 
@@ -177,12 +173,16 @@ $(document).ready(function() {
 
 	});
 
+	$('#tag_box').tagit({
+		allowSpaces: true,
+	});
+
  });
 
 ////////// EVENTS //////////
 
 // edit an event
-function loadEventForEdit(event) {
+var loadEventForEdit = function(event) {
 	event_editing_mode = true;
 
 	var db_id = event._db_id;
@@ -239,12 +239,12 @@ function loadEventForEdit(event) {
 		$('#id_endAmPm').val(end_ampm);
 	}
 
+	$("#tag_box").tagit("removeAll");
 	var tags_list = event._tags;
-	for (var i=0;i<tags_list.length;i++){
-		tag = tags_list[i];
-		this.tags_current[tag] = true;
-		this.tags[tag] = true;
-		$('#newEventSelectedTags').append("<label class=\"label label-info tag\">" + tag + "</label>");
+	if (tags_list) {
+		for (var i=0;i<tags_list.length;i++){
+			$('#tag_box').tagit('createTag',tags_list[i]);
+		}
 	}
 
 	$('#newEvent').modal('show');
