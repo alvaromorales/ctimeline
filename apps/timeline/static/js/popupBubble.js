@@ -30,31 +30,31 @@ Timeline.DefaultEventSource.Event.prototype.fillInfoBubble = function(elmt, them
     var tags = eventObject.getTags();
     var tags_html = '';
 
-    for (var i=0; i< tags.length;i++) {
-        tag = tags[i];
-        tags_html += "<label class=\"label label-info tag\">" + tag + "</label>";
+    if (tags) {
+        for (var i=0; i< tags.length;i++) {
+            tag = tags[i];
+            tags_html += "<li>" + tag + "</li>";
+        }
     }
 
-    var tags_div = "<p>Tags: </p><div id=\"tagsDetail" + event_id + "\" class=\"tag-box-small\">" + tags_html + "</div>";
-
+    var tags_div = "<p>Tags: </p><ul id=\"tagsBubble\"" + ">" + tags_html + "</ul>";
     var tags_json = JSON.stringify(eventObject.getTags());
-    var tags_edit_html = "<a href='javascript:loadTagsForEdit(" + tags_json + "," + event_id + ")'>Edit tags</a>";
 
-    var collabHTML = edit_html+ votes_html + tags_div + tags_edit_html;
-
+    var collabHTML = edit_html+ votes_html + tags_div;
     divCollab.innerHTML = collabHTML;
-
-    divCollab.firstChild.onclick = function() {
-        //$(this).hide();
-    }
     elmt.appendChild(divCollab);
+
+    $("#tagsBubble").tagit({
+        readOnly: true
+    });
+
 }
 
-function upvoteEvent(event_id) {
+var upvoteEvent = function(event_id) {
 
 	var bubbleObject = $("#eventBubble" + event_id);
 	var data = {id : event_id};
-	var voteUrl = "/vote";
+	var voteUrl = "/timeline/vote";
 	$.ajax({ 
 		type:"GET", 
 		url: voteUrl, 
@@ -67,14 +67,13 @@ function upvoteEvent(event_id) {
 
 }
 
-function upvoteDone(response, status) {
+var upvoteDone = function(response, status) {
 	if (status == "success") {
 		reloadTimeline(response);
 	}
 }
 
-function reloadTimeline(events) {
-
+var reloadTimeline = function(events) {
     $(".timeline-message-container").css('display', 'block'); //display ajax spinner
     var eventSource = tl.getBand(0).getEventSource();
 
