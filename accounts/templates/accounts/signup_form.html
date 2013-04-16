@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Collaborative Timelines</title>
+<!-- Bootstrap -->
+<link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet" media="screen">
+
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="{{ STATIC_URL }}js/bootstrap.js"></script>
+</head>
+
+<body>
+
+  {% include "navbar.html" %}
+
+  <p><br /></p>
+ 
+    <div class="container">
+	<form action="" method="post">
+	  <input type='hidden' name='csrfmiddlewaretoken' value='bDV0bx8Jrgm7MJ8WzD7a5zjZZPFSfq7S' />
+	  <fieldset>
+	    <legend>Signup</legend>
+
+	    {{ form.first_name.errors }}
+	    <p>
+	    <label for="id_first_name">First name</label> 
+	    {{ form.first_name }}
+	    </p>
+
+	    {{ form.last_name.errors }}
+	    <p>
+	    <label for="id_last_name">Last name</label> 
+	    {{ form.last_name }}
+	    </p>
+	    
+	    {{ form.username.errors }}
+	    <p>
+	    <label for="id_username">Username</label> 
+	    {{ form.username }}
+	    </p>
+	    
+	    {{ form.email.errors }}
+	    <p>
+	    <label for="id_email">Email</label> 
+	    {{ form.email }}
+	    </p>
+	    
+	    {{ form.password1.errors }}
+	    <p>
+	    <label for="id_password1">Create password</label> 
+	    {{ form.password1 }}
+	    </p>
+	    
+	    {{ form.password2.errors }}
+	    <p>
+	    <label for="id_password2">Repeat password</label> 
+	    {{ form.password2 }}
+	    </p>
+	    
+	    
+	  </fieldset>
+	  <input class="btn" type="submit" value="Signup" />
+	</form>
+</div>
+
+</body>
+</html>

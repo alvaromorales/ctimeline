@@ -1,0 +1,34 @@
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container"><!-- Collapsable nav bar -->
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+ 
+      <a class="brand">cTimeline</a>
+ 
+      <div class="nav-collapse"><!-- Other nav bar content -->
+        {% if user.is_authenticated %}
+        <ul class="nav pull-right">
+          <li><a href="/account/">Account</a></li>
+        </ul>
+        {% else %}
+        <ul class="nav pull-right">
+          <li><a href="/account/signup">Sign Up</a></li>
+          <li class="divider-vertical"></li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown">Sign In <strong class="caret"></strong></a>
+            <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
+              {% include "login.html" %}
+            </div>
+          </li>
+        </ul>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<pre>	</pre>

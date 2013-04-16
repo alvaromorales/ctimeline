@@ -98,11 +98,30 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'taggit',
+    'guardian',
+    'userena',
+    'easy_thumbnails',
     'apps.timeline',
     'apps.homepage',
-    'south',
-    'taggit',
+    'accounts',
 )
+
+# Django userena settings
+
+AUTH_PROFILE_MODULE = 'accounts.UserProfile'
+
+AUTHENTICATION_BACKENDS = (  
+        'userena.backends.UserenaAuthenticationBackend',  
+        'guardian.backends.ObjectPermissionBackend',  
+        'django.contrib.auth.backends.ModelBackend',  
+    )  
+  
+ANONYMOUS_USER_ID = -1
+  
+LOGIN_REDIRECT_URL = '/accounts/%(username)s/'
+LOGIN_URL = '/accounts/login/'
+LOGOUT_URL = '/accounts/signout/'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

@@ -5,6 +5,7 @@ from taggit.models import TaggedItemBase
 class Timeline(models.Model):    
     title = models.CharField(max_length=200)
     description = models.CharField(max_length=500)
+    # created by
     # category
     # image
     
