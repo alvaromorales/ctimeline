@@ -1,0 +1,29 @@
+<div id="filter-accordion" class="accordion">
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" data-parent="#filter-accordion" href="#collapseOne">
+        <h4>Filter Options</h4>
+      </a>
+    </div>
+    <div id="collapseOne" class="accordion-body collapse">
+      <div class="accordion-inner">
+        <p>
+          <span>Show events with more than &nbsp;&nbsp;</span>
+          <input id='minVotes' class='input-small' type='text' value='0'></span>
+          <span> &nbsp;&nbsp;votes</span>
+
+          <span>with tags &nbsp;&nbsp;</span>
+            <select id='allTags' data-placeholder="Choose a Tag" class="chzn-select" multiple style="width:250px; height:200px;" tabindex="4">
+              
+            </select>
+        </p>
+        <div>
+          <button id='apply_filter' class='btn btn-primary'>Apply</button>
+          &nbsp;&nbsp;
+          <button id='reset_filter' class='btn'>Reset</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

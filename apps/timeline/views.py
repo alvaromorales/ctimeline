@@ -27,77 +27,35 @@ months = {
 def index(request,timeline_id):
     t = get_object_or_404(Timeline, pk=timeline_id)
 
-    """
-    Hidden attributes:
-    id_eventType = 'instant' or 'duration'
-    id_startTimeEnabled = 'True' or 'False'
-    id_endTimeEnabled = 'True' or 'False'
-    """
-    # Check if new event form has been submitted
-    # 'startTimeEnabled' is unique to this form, so this is a way to check that
-    # we're not executing the following code from an outside POST call
-    if request.method == 'POST' and (u'startTimeEnabled' in request.POST):
-        newEvent = request.POST.copy()
-
-        newEvent['title'] = request.POST[u'title']
-        newEvent['description'] = request.POST[u'description']
-        
-        # Generate startdate Date object
-        startDay = int(request.POST[u'startDay'])
-        startMonth = months[request.POST[u'startMonth']]
-        startYear = int(request.POST[u'startYear'])
-        startDate = date(startYear,startMonth,startDay)
-        newEvent['startDate'] = startDate
-        
-        if request.POST[u'startTimeEnabled'] == 'True':
-            startHour = int(request.POST[u'startTimeHour'])
-            if request.POST[u'startAmPm'] == 'PM':
-                startHour += 12
-            startMin = int(request.POST[u'startTimeMin'])
-            newEvent['startTime'] = time(startHour,startMin)
-
-        if request.POST[u'eventType'] == 'duration':
-            newEvent['durationEvent'] = True
-            
-            # Generate startdate Date object
-            endDay = int(request.POST[u'endDay'])
-            endMonth = months[request.POST[u'endMonth']]
-            endYear = int(request.POST[u'endYear'])
-            endDate = date(endYear,endMonth,endDay)
-            newEvent['endDate'] = endDate
-
-            if request.POST[u'endTimeEnabled'] == 'True':
-                endHour = int(request.POST[u'endTimeHour'])
-                if request.POST[u'endAmPm'] == 'PM':
-                    endHour += 12
-                endMin = int(request.POST[u'endTimeMin'])
-                newEvent['endTime'] = time(endHour,endMin)
-        
-        else:
-            newEvent['durationEvent'] = False
-
-        newEvent['votes'] = 0
-        
-        form = NewEventForm(newEvent)
-        if form.is_valid():
-            f = form.save(commit=False)
-            f.timeline = t
-            f.save()
-            return HttpResponseRedirect('/timeline/' + str(t.id) + '/')
-        
-    all_events = t.events.all()
-    json_events = create_json(all_events)
-    all_tags = sorted([tag.name for tag in Tag.objects.filter(event__timeline=t)])
+    events = create_json(t.events.all())
+    tags = sorted([tag.name for tag in Tag.objects.filter(event__timeline=t)])
     
     return render_to_response('timeline/index.html',
-                              {'timeline' : t,
-                               'all_events' : all_events,
-                               'json_events' : json_events,
-                               'all_tags' : all_tags,
-                               },
+                              {'timeline': t},
                               context_instance = RequestContext(request))
 
-def upvote(request):
+def get_timeline_data(request,timeline_id):
+    if request.method == 'GET':
+        t = get_object_or_404(Timeline, pk=timeline_id)
+        events = create_json(t.events.all())
+        tags = simplejson.dumps(sorted([tag.name for tag in Tag.objects.filter(event__timeline=t)]))
+        return HttpResponse(
+            simplejson.dumps((events,tags)), 
+            mimetype='application/json')
+
+def get_events(request,timeline_id):
+    if request.method == 'GET':
+        t = get_object_or_404(Timeline, pk=timeline_id)
+        events = create_json(t.events.all())
+        return HttpResponse(events, mimetype='application/json')
+
+def get_tags(request,timeline_id_):
+    if request.method == 'GET':
+        t = get_object_or_404(Timeline, pk=timeline_id)
+        tags = simplejson.dumps(sorted([tag.name for tag in Tag.objects.filter(event__timeline=t)]))
+        return HttpResponse(tags, mimetype='application/json')
+
+def upvote(request,timeline_id):
     if request.method == 'GET':
         event_id = request.GET[u'id']
         e = get_object_or_404(Event,pk=event_id)
@@ -111,9 +69,8 @@ def upvote(request):
         return HttpResponse(data, mimetype='application/json')
     return HttpResponse("error")
 
-def addEvent(request):
+def new_event(request,timeline_id):
     if request.method == 'POST':
-        timeline_id = request.POST[u'id']
         t = get_object_or_404(Timeline, pk=timeline_id)
         
         # Take data from request and change it to Simile Timeline event format
@@ -202,12 +159,12 @@ def addEvent(request):
 
         return HttpResponse(data, mimetype='application/json')
 
-def filter(request):
-    if request.method == 'POST':
-        t = get_object_or_404(Timeline, pk=request.POST[u'id'])
+def filter(request,timeline_id):
+    if request.method == 'GET':
+        t = get_object_or_404(Timeline, pk=timeline_id)
         
-        votes_filter = int(request.POST[u'votes'])
-        tags_filter = simplejson.loads(request.POST[u'tag_list'])
+        votes_filter = int(request.GET[u'votes'])
+        tags_filter = simplejson.loads(request.GET[u'tag_list'])
 
         if votes_filter == 0 and tags_filter == []:
             all_events = t.events.all()

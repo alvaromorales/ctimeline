@@ -1,3 +1,6 @@
+var events;
+var tags;
+
 var event_editing_mode = false;
 var current_event_id;
 
@@ -38,33 +41,54 @@ $.ajaxSetup({
 ////////// DOCUMENT READY //////////
 
 $(document).ready(function() {
+	SimileAjax.History.enabled = false;
 
-	//load timeline
-	(function() {
-		var eventSource = new Timeline.DefaultEventSource();
-		var bandInfos = [
-			Timeline.createBandInfo({
-				eventSource:    eventSource,
-				date:           timelineStart,
-				width:          "70%",
-				intervalUnit:   Timeline.DateTime.MONTH,
-				intervalPixels: 100
-			}),
-			Timeline.createBandInfo({
-				overview:       true,
-				eventSource:    eventSource,
-				date:           timelineStart,
-				width:          "30%",
-				intervalUnit:   Timeline.DateTime.YEAR,
-				intervalPixels: 200
-			})
-		];
-		bandInfos[1].syncWith = 0;
-		bandInfos[1].highlight = true;	
+	$.getJSON('data', function(data) {
 
-		tl = Timeline.create(document.getElementById("timeline"), bandInfos);
-		eventSource.loadJSON(eventData, document.location.href);
-	}());
+		var events = JSON.parse(data[0]);
+		var tags = JSON.parse(data[1]);
+
+		var timelineStart = getTimelineStart(events.events);
+		var intervalUnit = getEventsInterval(events.events);
+
+		//load timeline
+		(function() {
+			var eventSource = new Timeline.DefaultEventSource();
+			var bandInfos = [
+				Timeline.createBandInfo({
+					eventSource:    eventSource,
+					date:           timelineStart,
+					width:          "70%",
+					intervalUnit:   intervalUnit,
+					intervalPixels: 100
+				}),
+				Timeline.createBandInfo({
+					overview:       true,
+					eventSource:    eventSource,
+					date:           timelineStart,
+					width:          "30%",
+					intervalUnit:   Timeline.DateTime.YEAR,
+					intervalPixels: 200
+				})
+			];
+			bandInfos[1].syncWith = 0;
+			bandInfos[1].highlight = true;	
+
+			tl = Timeline.create(document.getElementById("timeline"), bandInfos);
+			eventSource.loadJSON(events, document.location.href);
+		}());
+
+		displayTags(tags);
+
+		$(".chzn-select").chosen();
+		$(".default").css("width","350px");
+		$(".chzn-choices").css("width","350px");
+		$(".chzn-results").css("width","350px");
+
+		$('#tag_box').tagit({
+			allowSpaces: true,
+		});
+	});
 
  	// fill time <select> elements
  	$('#id_startDay').append(fillNums(1,31));
@@ -127,14 +151,9 @@ $(document).ready(function() {
 	});
 
 	$('#create_event').click(function (e) {
-		addEventToTimeline(timeline_id); 
+		addEventToTimeline(); 
 		discardNewEvent();
 	});
-
-	$(".chzn-select").chosen();
-	$(".default").css("width","350px");
-	$(".chzn-choices").css("width","350px");
-	$(".chzn-results").css("width","350px");
 
 	$('#apply_filter').click(function(e) {
 		var tags = [];
@@ -142,17 +161,10 @@ $(document).ready(function() {
 			tags.push($(this)[0].innerHTML);
 		});
 
-	    var data = {id: timeline_id, votes: $('#minVotes').val(),tag_list: JSON.stringify(tags)};
-	    var filterUrl = "/timeline/filter/";
+	    var data = {votes: $('#minVotes').val(),tag_list: JSON.stringify(tags)};
+	    var filterUrl = "filter/";
 
-	    $.ajax({ 
-	        type:"POST",
-	        url: filterUrl,
-	        dataType: 'json',
-	        data: data,
-	        success: filterDone
-	    });
-
+	    $.get('filter/', data, filterDone);
 	});
 
 	$('#reset_filter').click(function(e) {
@@ -160,21 +172,11 @@ $(document).ready(function() {
 		$('option').prop('selected', false);
 		$('select').trigger('liszt:updated');
 
-		var data = {id: timeline_id, votes: 0,tag_list: JSON.stringify([])};
+		var data = {votes: 0,tag_list: JSON.stringify([])};
 		var filterUrl = "/timeline/filter/";
 
-		$.ajax({ 
-		    type:"POST",
-		    url: filterUrl,
-		    dataType: 'json',
-		    data: data,
-		    success: filterDone
-		});
+	    $.get('filter/', data, filterDone);
 
-	});
-
-	$('#tag_box').tagit({
-		allowSpaces: true,
 	});
 
  });
@@ -248,6 +250,14 @@ var loadEventForEdit = function(event) {
 	}
 
 	$('#newEvent').modal('show');
+}
+
+var displayTags = function(tags) {
+	var tagsSelect = $('#allTags');
+	for (var i=0;i<tags.length;i++) {
+		var tag = tags[i];
+		tagsSelect.append("<option value=\"" + tag + "\">" + tag + "</option>");
+	}
 }
 
 var extractTimeInfo = function(datetime_str) {
@@ -349,9 +359,8 @@ var discardNewEvent = function(){
 
 }
 
-var addEventToTimeline = function(timeline_id) {
+var addEventToTimeline = function() {
 	var data = {
-		id: timeline_id,
 		edit: event_editing_mode,
 		title: $("#id_title").val(),
 		description: $("#id_description").val(),
@@ -376,7 +385,7 @@ var addEventToTimeline = function(timeline_id) {
 	if (event_editing_mode) {
 		data['db_id'] = $('#id_db_id').val();
 
-		var editEvent = "/timeline/editevent/";
+		var editEvent = "edit/";
 
 		$.ajax({ 
 			type:"POST", 
@@ -387,7 +396,7 @@ var addEventToTimeline = function(timeline_id) {
 		});
 
 	} else {
-		var createUrl = "/timeline/addevent/";
+		var createUrl = "add/";
 
 		$.ajax({ 
 			type:"POST", 
@@ -416,13 +425,13 @@ function resetFilters() {
 	filter_tags = {};
 	selected_tags = 0;
 	
-	filterEvents(timeline_id);
+	filterEvents();
 }
 
-function filterEvents(timeline_id) {
+function filterEvents() {
 
-    var data = {id: timeline_id, votes: $('#minVotes').val(),tag_list: JSON.stringify(filter_tags)};
-    var filterUrl = "/timeline/filter/";
+    var data = {votes: $('#minVotes').val(),tag_list: JSON.stringify(filter_tags)};
+    var filterUrl = "/timeline/filter";
 
     $.ajax({ 
         type:"POST",

@@ -1,0 +1,127 @@
+<!-- Modal for New Event-->
+<div id="newEvent" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newEventLabel" aria-hidden="true" data-keyboard="false">
+<div class="modal-header">
+  <button type="button" class="close discardEventModal" data-dismiss="modal" aria-hidden="true">×</button>
+  <h3 id="newEventLabel">New event</h3>
+</div>
+{% csrf_token %}
+<!--          <form id="newEventForm" class="form-horizontal" method="post" action=""> -->
+<input type="hidden" id="id_eventType" name="eventType" value="instant"></input>
+<input type="hidden" id="id_db_id" name="db_id" value=''></input>
+<input type="hidden" id="id_startTimeEnabled" name="startTimeEnabled" value="False"></input>
+<input type="hidden" id="id_endTimeEnabled" name="endTimeEnabled" value="False"></input>
+
+<div class="modal-body form-horizontal">
+  <div class="control-group">
+    <label class="control-label" for="inputTitle">Title</label>
+    <div class="controls">
+      <input id="id_title" name="title" class="input-xlarge" type="text" placeholder="Give your event a meaningful name">
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label class="control-label" for="inputDescription">Description</label>
+    <div class="controls">
+      <textarea id="id_description" name="description" class="input-xlarge" rows="5" placeholder="What happened?"></textarea>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label class="control-label" for="selectTypeOfEvent">Type</label>
+    <div class="controls">
+      <div class="btn-group" data-toggle-name="event_type" data-toggle="buttons-radio" >
+        <button id="instant" name="instant" type="button" class="btn" data-toggle="button">Instant</button>
+        <button id="duration" name="duration" type="button" class="btn" data-toggle="button">Duration</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="control-group" id="eventStart">
+    <label class="control-label" for="inputStartDate">Start</label>
+    <div class="controls">
+      <div id="startMonthInput" class="form-inline">
+        <select id="id_startMonth" name="startMonth" class="input-medium">
+          <option>January</option>
+          <option>February</option>
+          <option>March</option>
+          <option>April</option>
+          <option>May</option>
+          <option>June</option>
+          <option>July</option>
+          <option>August</option>
+          <option>September</option>
+          <option>October</option>
+          <option>November</option>
+          <option>December</option>
+        </select>
+        <select id="id_startDay" name="startDay" class="input-mini">
+
+        </select>
+        <input id="id_startYear" name="startYear" class="input-mini" type="text" placeholder="YYYY"></input>
+        <p></p>
+        <a href="#" id="addStartTime">add start time</a>
+        <div id="startTimeInput">
+          <select id="id_startTimeHour" name="startTimeHour" class="input-mini"></select>
+          :
+          <select id="id_startTimeMin" name="startTimeMin" class="input-mini"></select>
+          <select id="id_startAmPm" name="startAmPm" class="input-mini">
+            <option>AM</option>
+            <option>PM</option>
+          </select>
+          <a href="#" id="removeStartTime">remove</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="control-group" id="eventEnd">
+    <label class="control-label">End</label>
+    <div class="controls">
+      <div id="endMonthInput" class="form-inline">
+        <select id="id_endMonth" name="endMonth" class="input-medium">
+          <option>January</option>
+          <option>February</option>
+          <option>March</option>
+          <option>April</option>
+          <option>May</option>
+          <option>June</option>
+          <option>July</option>
+          <option>August</option>
+          <option>September</option>
+          <option>October</option>
+          <option>November</option>
+          <option>December</option>
+        </select>
+        <select id="id_endDay" name="endDay" class="input-mini">
+
+        </select>
+        <input id="id_endYear" name="endYear" class="input-mini" type="text" placeholder="YYYY"></input>
+        <p></p>
+        <a href="#" id="addEndTime">add end time</a>
+        <div id="endTimeInput">
+          <select id="id_endTimeHour" name="endTimeHour" class="input-mini"></select>
+          :
+          <select id="id_endTimeMin" name="endTimeMin" class="input-mini"></select>
+          <select id="id_endAmPm" name="endAmPm" class="input-mini">
+            <option>AM</option>
+            <option>PM</option>
+          </select>
+          <a href="#" id="removeEndTime">remove</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="control-group" id="tags">
+    <label class="control-label">Tags</label>
+    <div class="controls">
+      <input id="tag_box" name="tags" class="input-xlarge" type="text">
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn discardEventModal" data-dismiss="modal" aria-hidden="true">Close</button>
+  <button id="create_event" class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Create</input>
+  </div>
+</div>

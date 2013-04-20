@@ -2,8 +2,9 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('apps.timeline.views',
                        url(r'^(?P<timeline_id>[0-9]+)/$', 'index'),
-                       url(r'^vote/$','upvote'),
-                       url(r'^addevent/$','addEvent'),
-                       url(r'^editevent/$','addEvent'),
-                       url(r'^filter/$','filter'),
+                       url(r'^(?P<timeline_id>[0-9]+)/data/$', 'get_timeline_data'),
+                       url(r'^(?P<timeline_id>[0-9]+)/vote/$','upvote'),
+                       url(r'^(?P<timeline_id>[0-9]+)/add/$','new_event'),
+                       url(r'^(?P<timeline_id>[0-9]+)/edit/$','new_event'),
+                       url(r'^(?P<timeline_id>[0-9]+)/filter/$','filter'),
 )
