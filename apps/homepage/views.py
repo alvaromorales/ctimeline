@@ -3,6 +3,7 @@ from apps.timeline.models import *
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from apps.timeline.forms import NewTimelineForm
+from userena.forms import AuthenticationForm
 
 def index(request):
     # create a new timeline
@@ -15,5 +16,6 @@ def index(request):
     all_timelines = Timeline.objects.all()[:5]
 
     return render_to_response('homepage/index.html',
-                              {'featured_timelines': all_timelines},
+                              {'featured_timelines': all_timelines,
+                               'login_form': AuthenticationForm},
                               context_instance = RequestContext(request))

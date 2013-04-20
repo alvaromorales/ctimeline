@@ -25,3 +25,7 @@
 	position: relative;
 	top: -10px;
 }
+
+.accordion-inner {
+	overflow: visible;
+}

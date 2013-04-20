@@ -120,8 +120,11 @@ AUTHENTICATION_BACKENDS = (
 ANONYMOUS_USER_ID = -1
   
 LOGIN_REDIRECT_URL = '/accounts/%(username)s/'
-LOGIN_URL = '/accounts/login/'
+
 LOGOUT_URL = '/accounts/signout/'
+USERENA_REDIRECT_ON_SIGNOUT = '/'
+USERENA_ACTIVATION_REQUIRED = False
+USERENA_SIGNIN_AFTER_SIGNUP = True
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
